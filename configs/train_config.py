@@ -23,11 +23,13 @@ train_dataset = CocoDetection(
     ann_file=f"{coco_path}/annotations/instances_train2017.json",
     transforms=presets.detr,  # see transforms/presets to choose a transform
     train=True,
+    use_classes=[1, 2],
 )
 test_dataset = CocoDetection(
     img_folder=f"/detectron2/dataset/",
     ann_file=f"{coco_path}/annotations/instances_val2017.json",
     transforms=None,  # the eval_transform is integrated in the model
+    use_classes=[1, 2],
 )
 
 # model config to train

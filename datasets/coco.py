@@ -1,4 +1,5 @@
 import os
+from typing import Optional, List
 
 import albumentations as A
 import cv2
@@ -18,12 +19,14 @@ class CocoDetection(torchvision.datasets.CocoDetection):
         ann_file,
         transforms=None,
         train=False,
+        use_classes: Optional[List[int]] = None,
     ):
         super(CocoDetection, self).__init__(img_folder, ann_file)
         self.prepare = ConvertCocoPolysToMask()
         self._transforms = transforms
         self._transforms = self.update_dataset(self._transforms)
         self.train = train
+        self._classes = use_classes
 
         if train:
             self._coco_remove_images_without_annotations()
@@ -68,6 +71,13 @@ class CocoDetection(torchvision.datasets.CocoDetection):
         image_name = self.coco.loadImgs([image_id])[0]["file_name"]
         image = self.load_image(image_name)
         target = self.coco.loadAnns(self.coco.getAnnIds([image_id]))
+        if self._classes is not None:
+            to_del = []
+            for t in target:
+                if t['category_id'] not in self._classes:
+                    to_del.append(t)
+            for d in reversed(to_del):
+                target.remove(d)
         target = dict(image_id=image_id, annotations=target)
         image, target = self.prepare((image, target))
         return image, target
