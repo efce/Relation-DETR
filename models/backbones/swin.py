@@ -770,10 +770,11 @@ class SwinTransformerBackbone(BaseBackbone):
         swin_transformer = instantiate(OmegaConf.to_object(model_config))
 
         # load state dict
-        weights = load_checkpoint(default_weight if weights is None else weights)
-        if isinstance(weights, Dict):
-            weights = weights["model"] if "model" in weights else weights
-        self.load_state_dict(swin_transformer, weights)
+        if weights is False:
+            weights = load_checkpoint(default_weight if weights is None else weights)
+            if isinstance(weights, Dict):
+                weights = weights["model"] if "model" in weights else weights
+            self.load_state_dict(swin_transformer, weights)
 
         # freeze stages
         self._freeze_stages(self, swin_transformer, freeze_indices)

@@ -103,7 +103,7 @@ def train():
         project_dir=cfg.output_dir, total_limit=5, automatic_checkpoint_naming=True
     )
     tensorboard_tracker = TensorBoardTracker(run_name="tf_log", logging_dir=cfg.output_dir)
-    kwargs = DistributedDataParallelKwargs(find_unused_parameters=cfg.find_unused_parameters)
+    kwargs = DistributedDataParallelKwargs(find_unused_parameters=False)
     accelerator = Accelerator(
         log_with=tensorboard_tracker,
         project_config=project_config,
@@ -148,7 +148,7 @@ def train():
         logger.info(f"load pretrained from {cfg.resume_from_checkpoint}")
 
     # register dataset class information into the model, useful for inference
-    cat_ids = list(range(max(cfg.train_dataset.coco.cats.keys()) + 1))
+    cat_ids = [1, 2] #list(range(max(cfg.train_dataset.coco.cats.keys()) + 1))
     classes = tuple(cfg.train_dataset.coco.cats.get(c, {"name": "none"})["name"] for c in cat_ids)
     model.register_buffer("_classes_", torch.tensor(encode_labels(classes)))
 
